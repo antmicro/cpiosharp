@@ -24,6 +24,8 @@
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace AntMicro.CPIOSharp
 {
@@ -31,7 +33,21 @@ namespace AntMicro.CPIOSharp
 	{
 		public Archive()
 		{
+			entries = new List<FileEntry>();
 		}
+
+		public Archive(string path) : this()
+		{
+			using(var fStream = new FileStream(path, FileMode.Open))
+			{
+				while(fStream.Position < fStream.Length)
+				{
+					entries.Add(new FileEntry(fStream));
+				}
+			}
+		}
+
+		private readonly List<FileEntry> entries;
 	}
 }
 
