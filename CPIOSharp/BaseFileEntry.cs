@@ -114,7 +114,6 @@ namespace AntMicro.CPIOSharp
 			var pathBytes = stream.ReadOrThrow(pathLength - 1); // no need to read NUL
 			stream.Seek(1 + paddedLength - pathLength, SeekOrigin.Current);
 			Path = Encoding.UTF8.GetString(pathBytes);
-			Console.WriteLine(Path);
 
 			IsTrailer = Path == TrailerPath;
 
