@@ -30,7 +30,11 @@ namespace AntMicro.CPIOSharp
 {
 	public sealed class RawFileEntry : BaseFileEntry
 	{
-		public RawFileEntry(BaseFileEntry baseOn) : base(baseOn)
+		internal RawFileEntry(BaseFileEntry baseOn) : base(baseOn)
+		{
+		}
+
+		public RawFileEntry()
 		{
 		}
 
