@@ -149,7 +149,7 @@ namespace AntMicro.CPIOSharp
 		public int Uid { get; set; }
 		public int Gid { get; set; }
 		public DateTime ModificationDate { get; set; }
-		public string Path { get; private set; }
+		public string Path { get; set; }
 
 		internal bool IsTrailer { get; private set; }
 
