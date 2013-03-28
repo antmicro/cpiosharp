@@ -26,28 +26,68 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 
 namespace AntMicro.CPIOSharp
 {
 	public class Archive
 	{
-		public Archive()
+		public Archive(IEnumerable<BaseFileEntry> entries)
 		{
-			entries = new List<FileEntry>();
+			this.entries = new List<BaseFileEntry>();
+			this.entries.AddRange(entries);
 		}
 
-		public Archive(string path) : this()
+		public Archive(string path) : this(Enumerable.Empty<BaseFileEntry>())
 		{
 			using(var fStream = new FileStream(path, FileMode.Open))
 			{
-				while(fStream.Position < fStream.Length)
+				while(true)
 				{
-					entries.Add(new FileEntry(fStream));
+					var fileEntry = new BaseFileEntry(fStream);
+					if(!fileEntry.IsTrailer)
+					{
+						entries.Add(fileEntry);
+					}
+					else
+					{
+						break;
+					}
 				}
 			}
 		}
 
-		private readonly List<FileEntry> entries;
+		public void SaveTo(string fileName)
+		{
+			using(var fStream = new FileStream(fileName, FileMode.Create))
+			{
+				foreach(var entry in entries)
+				{
+					entry.WriteTo(fStream);
+				}
+				var trailerBytes = Encoding.ASCII.GetBytes(TrailerEntry);
+				fStream.Write(trailerBytes, 0, trailerBytes.Length);
+
+				// as it seems, the whole CPIO is padded to 256 byte boundary
+				var length = checked((int)fStream.Position);
+				var lengthShouldBe = length.PadTo(256);
+				var paddingArray = new byte[lengthShouldBe - length];
+				fStream.Write(paddingArray, 0, paddingArray.Length);
+			}
+		}
+
+		public IEnumerable<BaseFileEntry> Entries
+		{
+			get
+			{
+				return new ReadOnlyCollection<BaseFileEntry>(entries);
+			}
+		}
+
+		private readonly List<BaseFileEntry> entries;
+		private const string TrailerEntry = "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!";
 	}
 }
 
