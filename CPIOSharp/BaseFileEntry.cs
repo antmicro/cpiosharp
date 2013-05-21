@@ -117,7 +117,12 @@ namespace AntMicro.CPIOSharp
 
 			IsTrailer = Path == TrailerPath;
 
-			RawContents = stream.ReadOrThrow(fileSize.PadToFour());
+			RawContents = stream.ReadOrThrow(fileSize);
+			var paddedToRead = fileSize.PadToFour() - fileSize;
+			if(paddedToRead != 0)
+			{
+				stream.ReadOrThrow(paddedToRead);
+			}
 		}
 
 		internal void WriteTo(Stream stream)
